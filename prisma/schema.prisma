@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  builds    Build[]
+  createdAt DateTime @default(now())
+}
+
+model CharacterBase {
+  id        String   @id @default(cuid())
+  key       String   @unique // ex: "elesis", "lire"
+  name      String           // ex: "Elesis"
+  job       String           // ex: "Knight"
+  createdAt DateTime @default(now())
+
+  builds    Build[]
+}
+
+model Build {
+  id              String   @id @default(cuid())
+  name            String
+  userId          String
+  characterBaseId String
+
+  user            User          @relation(fields: [userId], references: [id])
+  characterBase   CharacterBase @relation(fields: [characterBaseId], references: [id])
+
+  data            Json          // config crua da build (equip, cartas, etc)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
