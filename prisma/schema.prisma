@@ -7,33 +7,52 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  builds    Build[]
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+
+  // lado oposto da relação 1:1
+  credential Credential?
+
   createdAt DateTime @default(now())
+  builds    Build[]
+}
+
+model Credential {
+  id           String @id @default(cuid())
+  userId       String @unique
+  username     String @unique
+  passwordHash String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model CharacterBase {
   id        String   @id @default(cuid())
   key       String   @unique // ex: "elesis", "lire"
-  name      String           // ex: "Elesis"
-  job       String           // ex: "Knight"
+  name      String // ex: "Elesis"
+  job       String // ex: "Knight"
   createdAt DateTime @default(now())
 
-  builds    Build[]
+  builds Build[]
 }
 
 model Build {
-  id              String   @id @default(cuid())
+  id              String @id @default(cuid())
   name            String
   userId          String
   characterBaseId String
 
-  user            User          @relation(fields: [userId], references: [id])
-  characterBase   CharacterBase @relation(fields: [characterBaseId], references: [id])
+  user          User          @relation(fields: [userId], references: [id])
+  characterBase CharacterBase @relation(fields: [characterBaseId], references: [id])
 
-  data            Json          // config crua da build (equip, cartas, etc)
+  data Json // config crua da build (equip, cartas, etc)
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
